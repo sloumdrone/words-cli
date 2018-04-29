@@ -27,7 +27,7 @@ def call_api(op,wordphrase):
         value = json.loads(str(value))
         return value or False
 
-def validate_args(op):
+def validate_operation(op):
     if op in valid_args:
         return False
     return True
@@ -39,11 +39,22 @@ def display_help():
         a utility for retrieving word information from the datamuse api
 
         usage:
-        words [options...] args [query...]
+        words [options...] operator [query...]
 
         examples:
         words --max="10" --sp="*ding" --ml="joining merging tying"
         words --topics="weather clouds" --sl="rimbus"
+
+
+        operators:
+
+        lookup              [string]:   initiate a lookup
+
+        help, -h, --help    [string]:   display this help information
+
+        version, -v,        [string]:   display the version id
+        --version
+
 
 
         options:
@@ -68,24 +79,42 @@ def display_help():
                                       space delimited
     ''')
 
+def display_version():
+    print('''
+        words version 0.0.1
+    ''')
+
 
 def parse_args():
     args = sys.argv[1:] #words --help; words means a bright light --max-items=5
     query = {}
+    if len(args) < 1:
+        print('''
+            You must supply at least one operator
+            See: words --help
+        ''')
+        return False
+
     query['operation'] = args.pop(0)
-    query['wordlist'] = []
-    query['options'] = []
-    for val in args:
-        if val[0:2] == '--':
-            op_list = val.split('=')
-            query['options'].append(op_list)
-        else:
-            query['wordlist'].append(val)
-    return validate_operation(query['operation']) or query
+    if query['operation'] in ['help','-h','--help']:
+        display_help()
+        return False
+    elif query['operation'] in ['version','-v','--version']:
+        display_version()
+        return False
+    else:
+        query['wordlist'] = []
+        query['options'] = []
+        for val in args:
+            if val[0:2] == '--':
+                op_list = val.split('=')
+                query['options'].append(op_list)
+            else:
+                query['wordlist'].append(val)
+        return query
 
 
 if __name__ == '__main__':
-    if validate_args(operation):
+    if parse_args():
         response = call_api(operation,word_list)
         print(response)
-    display_help()
