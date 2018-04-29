@@ -5,23 +5,32 @@ import sys
 #http://www.datamuse.com/api/
 
 
-dmapi = 'http://api.datamuse.com/words'
-valid_args = {'means': ['ml',dmapi]}
-query = {
-    'operation' : '',
-    'wordphrase' : '',
-    'options' : []
-}
+version_id = '0.0.1'
 
 
-def call_api(op,wordphrase):
-    api = valid_args[op][1]
-    param = '?' + valid_args[op][0] + '='
-    url = api + param + wordphrase
-    print(url)
+def define_req(data_dict):
+    if len(data_dict['wordlist']) > 0:
+        word = data_dict['wordlist'][0]
+        params = '?' + 'sp=' + word + '&md=d'
+        call = call_api(params)
+        response = []
+        response.append('\n *----------------------* \n')
+        response.append(word + ' is defined as:\n')
+        for index, item in enumerate(call[0]['defs']):
+            response.append(str(index + 1) + '. ' + item[2:])
+        response.append('\n *----------------------* \n')
+        return response
+    return False
 
+def lookup_req(data_dict):
+    valid_options = ['ml','max','sp','sl','topics']
+    pass
 
+def call_api(query_string):
+    dmapi = 'http://api.datamuse.com/words'
+    url = dmapi + query_string
     req = urllib.request.Request(url,method='GET')
+    
     with urllib.request.urlopen(req, timeout=5) as res:
         value = res.read().decode('ASCII')
         value = json.loads(str(value))
@@ -39,7 +48,7 @@ def display_help():
         a utility for retrieving word information from the datamuse api
 
         usage:
-        words [options...] operator [query...]
+        words [operator] [options...] [query...]
 
         examples:
         words --max="10" --sp="*ding" --ml="joining merging tying"
@@ -48,11 +57,13 @@ def display_help():
 
         operators:
 
-        lookup              [string]:   initiate a lookup
+        lookup              initiate a lookup
 
-        help, -h, --help    [string]:   display this help information
+        define              get a word definition
 
-        version, -v,        [string]:   display the version id
+        help, -h, --help    display this help information
+
+        version, -v,        display the current words version id
         --version
 
 
@@ -79,14 +90,12 @@ def display_help():
                                       space delimited
     ''')
 
-def display_version():
-    print('''
-        words version 0.0.1
-    ''')
+def display_version(id):
+    print('words version: ' + id)
 
 
 def parse_args():
-    args = sys.argv[1:] #words --help; words means a bright light --max-items=5
+    args = sys.argv[1:]
     query = {}
     if len(args) < 1:
         print('''
@@ -100,7 +109,7 @@ def parse_args():
         display_help()
         return False
     elif query['operation'] in ['version','-v','--version']:
-        display_version()
+        display_version(version_id)
         return False
     else:
         query['wordlist'] = []
@@ -115,6 +124,13 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    if parse_args():
-        response = call_api(operation,word_list)
-        print(response)
+    instructions = parse_args()
+    if instructions:
+        if instructions['operation'] == 'define':
+            response = define_req(instructions)
+        elif instructions['operation'] == 'define':
+            response = call_api(lookup_req(instructions))
+        else:
+            response = 'unknown operator ' + instructions['operation']
+        for item in response:
+            print(item)
