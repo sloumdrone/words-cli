@@ -32,9 +32,9 @@ def define_req(data_dict):
         response.append('* ' + term_colors.HEADER + term_colors.BOLD + word + ' is defined as:' + term_colors.ENDC)
         response.extend([spacer,divider,spacer,spacer])
         if call and 'defs' in call[0]:
-            # print(call)
             for index, item in enumerate(call[0]['defs']):
-                response.append('* ' + term_colors.OKGREEN + str(index + 1) + '. ' + term_colors.ENDC + item[2:])
+                ind_to_cut = item.find("\t")
+                response.append('* ' + term_colors.OKGREEN + str(index + 1) + '. ' + term_colors.ENDC + item[ind_to_cut:])
             response.extend([spacer,spacer,divider])
             return response
         else:
@@ -160,7 +160,7 @@ def parse_args():
     args = sys.argv[1:]
     query = {}
     if len(args) < 1:
-        print_error('INPUT ERROR: At least one operator must be provided\nSee: words --help\n')
+        print_error('INPUT ERROR: At least one operator must be provided\n    See: words --help\n')
         return False
 
     query['operation'] = args.pop(0)
@@ -183,7 +183,7 @@ def parse_args():
                 query['wordlist'].append(val)
         return query
     else:
-        print_error('INPUT ERROR: Invalid operator or syntax.\nSee: words --help')
+        print_error('INPUT ERROR: Invalid operator or syntax.\n    See: words --help')
         return False
 
 
