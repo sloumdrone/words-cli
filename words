@@ -60,7 +60,7 @@ def lookup_req(data_dict):
 
     response = []
     response.extend(['\n\n',divider,spacer])
-    response.append('* ' +  + term_colors.HEADER + term_colors.BOLD + 'The following words match yout query:' + term_colors.ENDC)
+    response.append('* ' + term_colors.HEADER + term_colors.BOLD + 'The following words match yout query:' + term_colors.ENDC)
     response.extend([spacer,divider,spacer,spacer])
     if call:
         for index, item in enumerate(call):
